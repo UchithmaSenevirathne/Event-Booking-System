@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,6 +59,59 @@ public class UserController {
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(VarList.Internal_Server_Error, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<ResponseDTO> authenticate(@RequestBody UserDTO userDTO) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ResponseDTO(VarList.Unauthorized, "Invalid Credentials", e.getMessage()));
+        }
+
+        UserDTO loadedUser = userService.loadUserDetailsByUsername(userDTO.getEmail());
+        if (loadedUser == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ResponseDTO(VarList.Conflict, "Authorization Failure! Please Try Again", null));
+        }
+
+        // Check user role
+        if ("ADMIN".equals(loadedUser.getRole())) {
+            // Handle admin login
+            String token = jwtUtil.generateToken(loadedUser);
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ResponseDTO(VarList.Conflict, "Authorization Failure! Please Try Again", null));
+            }
+
+            AuthDTO authDTO = new AuthDTO();
+            authDTO.setEmail(loadedUser.getEmail());
+            authDTO.setToken(token);
+            authDTO.setRole("ADMIN");
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ResponseDTO(VarList.Created, "Admin Login Success", authDTO));
+        } else if ("USER".equals(loadedUser.getRole())) {
+            // Handle user login
+            String token = jwtUtil.generateToken(loadedUser);
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ResponseDTO(VarList.Conflict, "Authorization Failure! Please Try Again", null));
+            }
+
+            AuthDTO authDTO = new AuthDTO();
+            authDTO.setEmail(loadedUser.getEmail());
+            authDTO.setToken(token);
+            authDTO.setRole("USER");
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ResponseDTO(VarList.Created, "User Login Success", authDTO));
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ResponseDTO(VarList.Forbidden, "Invalid Role", null));
         }
     }
 }
