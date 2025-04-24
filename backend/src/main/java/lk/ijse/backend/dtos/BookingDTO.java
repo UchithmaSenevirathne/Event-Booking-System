@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Data
 public class BookingDTO {
     private Long bookingId;
-    private Long user_id;
-    private Long event_id;
+    private Long userId;
+    private Long eventId;
     private int ticketQuantity;
     private LocalDateTime createdAt;
 }

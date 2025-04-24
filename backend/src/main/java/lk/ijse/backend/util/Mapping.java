@@ -1,7 +1,9 @@
 package lk.ijse.backend.util;
 
+import lk.ijse.backend.dtos.BookingDTO;
 import lk.ijse.backend.dtos.EventDTO;
 import lk.ijse.backend.dtos.UserDTO;
+import lk.ijse.backend.entities.Booking;
 import lk.ijse.backend.entities.Event;
 import lk.ijse.backend.entities.User;
 import org.modelmapper.ModelMapper;
@@ -35,5 +37,17 @@ public class Mapping {
 
     public List<EventDTO> convertToEventDTOList(List<Event> eventList) {
         return modelMapper.map(eventList, new TypeToken<List<EventDTO>>() {}.getType());
+    }
+
+    public Booking convertToBookingEntity(BookingDTO bookingDTO) {
+        return modelMapper.map(bookingDTO, Booking.class);
+    }
+
+    public BookingDTO convertToBookingDTO(Booking booking) {
+        return modelMapper.map(booking, BookingDTO.class);
+    }
+
+    public List<BookingDTO> convertToBookingDTOList(List<Booking> bookingList) {
+        return modelMapper.map(bookingList, new TypeToken<List<BookingDTO>>() {}.getType());
     }
 }

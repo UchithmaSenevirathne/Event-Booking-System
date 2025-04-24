@@ -39,7 +39,8 @@ public class WebSecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/events/backend/user/", "/events/backend/user/register", "/events/backend/user/authenticate",
-                                "/events/backend/event", "/events/backend/event/**")
+                                "/events/backend/event", "/events/backend/event/**",
+                                "/events/backend/book", "events/backend/book/all_bookings")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
