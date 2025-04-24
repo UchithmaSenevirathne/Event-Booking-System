@@ -17,12 +17,12 @@ const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full flex justify-between items-center px-6 py-3 shadow-md bg-gradient-to-r from-[#1677ff] via-purple-500 to-indigo-500">
+    <nav className="w-full flex justify-between items-center px-6 py-3 shadow-md bg-gradient-to-r from-[#1677ff] via-[#8248FF] to-[#6937CA]">
       <div className="text-xl font-bold text-white">Events</div>
 
       {/* Desktop Menu */}
       <div className="hidden md:flex">
-        <Menu mode="horizontal" items={items} className="border-none bg-transparent text-white" theme="dark"/>
+        <Menu mode="horizontal" items={items} className="text-white bg-transparent border-none" theme="dark"/>
       </div>
 
       {/* Mobile Menu Icon */}
