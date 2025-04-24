@@ -30,6 +30,11 @@ public class JwtUtil implements Serializable {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
+    //get embedded user role
+    public Claims getUserRoleCodeFromToken(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    }
+
     // Retrieve expiration date from JWT token
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
@@ -53,7 +58,9 @@ public class JwtUtil implements Serializable {
 
     // Generate token with just email
     public String generateToken(UserDTO userDTO) {
-        return doGenerateToken(new HashMap<>(), userDTO.getEmail());
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userDTO.getRole());
+        return doGenerateToken(claims, userDTO.getEmail());
     }
 
     // Build the token
