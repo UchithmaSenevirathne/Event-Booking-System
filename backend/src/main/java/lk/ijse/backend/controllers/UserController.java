@@ -6,6 +6,7 @@ import lk.ijse.backend.dtos.UserDTO;
 import lk.ijse.backend.services.impl.UserServiceIMPL;
 import lk.ijse.backend.util.JwtUtil;
 import lk.ijse.backend.util.VarList;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
