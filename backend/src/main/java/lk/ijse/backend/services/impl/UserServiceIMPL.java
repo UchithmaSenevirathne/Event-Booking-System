@@ -59,4 +59,14 @@ public class UserServiceIMPL implements UserService, UserDetailsService {
         User user = userRepository.findByEmail(email);
         return mapping.convertToUserDTO(user);
     }
+
+    @Override
+    public Long getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            return user.getUserId(); // Make sure you are returning the correct field for the user ID
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 }

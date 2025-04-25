@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/events/backend/user/", "/events/backend/user/register", "/events/backend/user/authenticate",
                                 "/events/backend/event", "/events/backend/event/**",
-                                "/events/backend/book", "events/backend/book/all_bookings")
+                                "/events/backend/book", "events/backend/book/all_bookings", "/events/backend/user/id/{email}")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
