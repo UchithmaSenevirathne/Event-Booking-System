@@ -37,7 +37,7 @@ export default function NavigationBar({ role }: NavigationBarProps) {
     <nav className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#1677ff] via-[#8248FF] to-[#6937CA] shadow-sm">
       <h1 className="text-lg font-extrabold text-white">Events</h1>
 
-      <div className="flex items-center gap-4 font-semibold">
+      <div className="items-center hidden gap-4 font-semibold lg:flex">
       {linksToRender.map((item) => (
           <NavbarLink key={item.key} item={item} currentPath={pathname} />
         ))}

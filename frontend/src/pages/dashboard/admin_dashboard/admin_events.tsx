@@ -15,7 +15,6 @@ import {
   DeleteOutlined,
   UploadOutlined,
   CalendarOutlined,
-  DollarOutlined,
   BookOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
