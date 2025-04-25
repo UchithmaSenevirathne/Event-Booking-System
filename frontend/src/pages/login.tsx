@@ -6,11 +6,15 @@ import { LockOutlined, MailOutlined, EyeTwoTone, EyeInvisibleOutlined } from "@a
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../components/UserContext";
 
 const { Title, Text } = Typography;
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const { setUser } = useUserContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,20 +32,31 @@ const Login: React.FC = () => {
         password: formData.password
       });
 
-      if (response.status === 201) {
-        const { token, role, email } = response.data.content;
-        toast.success("Login successful!");
+      console.log(response);
 
-        // Optionally store token
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userRole", role);
+      if (response.status === 201 && response.data?.data) {
+      
+        const token = response.data.data.token;
+        const email = response.data.data.email;
+        const role = response.data.data.role;
+      
+        if (token && email && role) {
+          console.log("login success");
+          toast.success("Login successful!");
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("userEmail", email);
+          localStorage.setItem("userRole", role);
 
-        // Redirect based on role
-        if (role === "ADMIN") {
-          window.location.href = "/admin_event";
+          const userData = {
+            role: role,
+          };
+
+          // Update UserContext and local state
+          setUser(userData);
+          
+          navigate("/layout");
         } else {
-          window.location.href = "/user_event";
+          toast.error("Unexpected response from server.");
         }
       }
     } catch (error: any) {

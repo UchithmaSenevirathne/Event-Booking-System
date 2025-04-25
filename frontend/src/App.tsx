@@ -5,9 +5,13 @@ import WebLayout from './pages/website/WebLayout';
 import { Routes, Route } from 'react-router-dom';
 import Login from './pages/login';
 import SignUp from './pages/register';
+import Dashboard from './pages/dashboard/Dashboard';
+import AppLayout from './pages/dashboard/AppLayout';
+import { UserProvider } from './components/UserContext';
 
 function App() {
   return (
+    <UserProvider>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<WebLayout/>}/>
@@ -21,14 +25,13 @@ function App() {
         />
 
         {/* Protected Routes - Layout wraps around these routes */}
-        {/* <Route path="/layout/*" element={<Layout />}>
+        <Route path="/layout/*" element={<AppLayout/>}>
           <Route index element={<Dashboard />} />
-          <Route path="home" element={<Dashboard />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="items" element={<Items />} />
-        </Route> */}
+          <Route path="events" element={<Dashboard />} />
+          {/* <Route path="bookings" element={<Bookings />} /> */}
+        </Route>
       </Routes>
+      </UserProvider>
   );
 }
 
