@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Popconfirm,
@@ -36,46 +36,22 @@ interface Event {
 
 interface AdminEventsProps {
   events: Event[];
+  loading: boolean;
   onUpdate: () => void;
   onDelete: () => void;
 }
 
 export default function AdminEvents({
-  events: initialEvents,
+  events,
+  loading,
   onUpdate,
   onDelete,
 }: AdminEventsProps) {
-  const [events, setEvents] = useState<Event[]>(initialEvents);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const API = "http://localhost:8080/events/backend/event";
-
-  useEffect(() => {
-    setEvents(initialEvents);
-  }, [initialEvents]);
-
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/all_events`);
-      // Log the first event's image data for debugging
-      if (response.data.length > 0) {
-        console.log(
-          "First event image data prefix:",
-          response.data[0].imageBase64.substring(0, 50) + "..."
-        );
-      }
-      setEvents(response.data);
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      toast.error("Failed to load events");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: number) => {
     try {
@@ -136,41 +112,61 @@ export default function AdminEvents({
 
   const updateEvent = async () => {
     if (!editingEvent) return;
-
+  
     try {
       const formData = new FormData();
       formData.append("title", editingEvent.title);
-
-      // Make sure date is in ISO format for the backend
-      const dateValue =
-        typeof editingEvent.date === "string"
-          ? editingEvent.date
-          : dayjs(editingEvent.date).toISOString();
+  
+      // Format the date correctly for ZonedDateTime parsing
+      let dateValue;
+      if (typeof editingEvent.date === "string") {
+        // If it's already an ISO string, use it
+        dateValue = editingEvent.date;
+  
+        // Ensure it has a time zone if it doesn't already
+        if (!dateValue.includes('Z') && !dateValue.includes('+')) {
+          dateValue = new Date(dateValue).toISOString();
+        }
+      } else {
+        // Convert dayjs to ISO string
+        dateValue = dayjs(editingEvent.date).toISOString();
+      }
       formData.append("date", dateValue);
-
+  
       formData.append("location", editingEvent.location);
       formData.append("price", editingEvent.price.toString());
       formData.append(
         "availableTickets",
         editingEvent.availableTickets.toString()
       );
-
-      // Ensure we're only sending the base64 data without prefix
-      const imageData = editingEvent.imageBase64.includes("base64,")
-        ? editingEvent.imageBase64.split("base64,")[1]
-        : editingEvent.imageBase64;
+  
+      // Handle the image data correctly
+      let imageData = editingEvent.imageBase64;
+      if (imageData.includes("base64,")) {
+        imageData = imageData.split("base64,")[1];
+      }
       formData.append("imageBase64", imageData);
-
-      await axios.put(`${API}/update/${editingEvent.eventId}`, formData, {
+  
+      // Log the data being sent for debugging
+      console.log("Updating event ID:", editingEvent.eventId);
+      console.log("Date value being sent:", dateValue);
+      
+      const response = await axios.put(`${API}/update/${editingEvent.eventId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
+      console.log("Update response:", response);
       toast.success("Event updated successfully");
       setIsModalOpen(false);
       onUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating event:", error);
-      toast.error("Failed to update event");
+      // More detailed error logging
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
+      toast.error(`Failed to update event: ${error.message}`);
     }
   };
 
@@ -230,13 +226,13 @@ export default function AdminEvents({
                     {new Date(event.date).toLocaleString()}
                   </p>
                 </div>
-                <div>
+                <div className="flex flex-col items-end">
                   <p className="mt-1 text-sm text-[green]">
                     <BookOutlined className="mr-1" /> {event.availableTickets}{" "}
                     Tickets
                   </p>
                   <p className="font-medium text-gray-800">
-                    <DollarOutlined className="mr-1" /> $
+                    $
                     {Number(event.price).toFixed(2)}
                   </p>
                 </div>
