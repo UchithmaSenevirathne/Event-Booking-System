@@ -21,4 +21,7 @@ public class Event {
     private String location;
     private Double price;
     private int availableTickets;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String imageBase64;
 }

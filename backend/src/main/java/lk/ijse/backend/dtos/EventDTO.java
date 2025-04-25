@@ -17,4 +17,5 @@ public class EventDTO implements EventResponse {
     private String location;
     private Double price;
     private int availableTickets;
+    private String imageBase64;
 }

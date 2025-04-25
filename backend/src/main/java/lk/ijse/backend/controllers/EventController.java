@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -20,9 +21,28 @@ import java.util.List;
 public class EventController {
     private final EventServiceIMPL eventService;
 
-    @PostMapping
-    public ResponseEntity<String> addEvent(@RequestBody EventDTO eventDTO) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> addEvent(
+            @RequestPart("title") String title,
+            @RequestPart("date") String date,
+            @RequestPart("location") String location,
+            @RequestPart("price") String price,
+            @RequestPart("availableTickets") String availableTickets,
+            @RequestPart("imageBase64") String imageBase64) {
         try {
+            LocalDateTime localDateTime = LocalDateTime.parse(date);
+            Double parsePrice = Double.parseDouble(price);
+            int ticketCount = Integer.parseInt(availableTickets);
+
+            EventDTO eventDTO = new EventDTO();
+
+            eventDTO.setTitle(title);
+            eventDTO.setDate(localDateTime);
+            eventDTO.setLocation(location);
+            eventDTO.setPrice(parsePrice);
+            eventDTO.setAvailableTickets(ticketCount);
+            eventDTO.setImageBase64(imageBase64);
+
             eventService.addEvent(eventDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }catch (DataPersistFailedException e){
@@ -32,10 +52,30 @@ public class EventController {
         }
     }
 
-    @PutMapping(value = "/update/{eventId}")
-    public ResponseEntity<Void> updateEvent(@PathVariable("eventId") Long eventId, @RequestBody EventDTO eventDTO) {
+    @PutMapping(value = "/update/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateEvent(
+            @PathVariable("eventId") Long eventId,
+            @RequestPart("title") String title,
+            @RequestPart("date") String date,
+            @RequestPart("location") String location,
+            @RequestPart("price") String price,
+            @RequestPart("availableTickets") String availableTickets,
+            @RequestPart("imageBase64") String imageBase64) {
         try {
+            LocalDateTime localDateTime = LocalDateTime.parse(date);
+            Double parsePrice = Double.parseDouble(price);
+            int ticketCount = Integer.parseInt(availableTickets);
+
+            EventDTO eventDTO = new EventDTO();
+
             eventDTO.setEventId(eventId);
+            eventDTO.setTitle(title);
+            eventDTO.setDate(localDateTime);
+            eventDTO.setLocation(location);
+            eventDTO.setPrice(parsePrice);
+            eventDTO.setAvailableTickets(ticketCount);
+            eventDTO.setImageBase64(imageBase64);
+
             eventService.updateEvent(eventDTO);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (NotFoundException e){

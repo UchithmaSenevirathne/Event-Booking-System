@@ -83,6 +83,7 @@ public class UserController {
         if ("ADMIN".equals(loadedUser.getRole())) {
             // Handle admin login
             String token = jwtUtil.generateToken(loadedUser);
+            System.out.println(token);
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(new ResponseDTO(VarList.Conflict, "Authorization Failure! Please Try Again", null));
@@ -96,8 +97,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ResponseDTO(VarList.Created, "Admin Login Success", authDTO));
         } else if ("USER".equals(loadedUser.getRole())) {
+            System.out.println("user login");
             // Handle user login
             String token = jwtUtil.generateToken(loadedUser);
+            System.out.println(token);
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(new ResponseDTO(VarList.Conflict, "Authorization Failure! Please Try Again", null));
