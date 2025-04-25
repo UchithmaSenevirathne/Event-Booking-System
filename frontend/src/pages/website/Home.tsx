@@ -5,6 +5,7 @@ import h2 from "../../assets/h2.jpg";
 import h3 from "../../assets/h3.jpg";
 import h4 from "../../assets/h4.jpg";
 import { Button } from "antd";
+import { NavLink } from "react-router-dom";
 
 // export default function Home() {
 //   return (
@@ -89,7 +90,7 @@ export default function Home() {
               Book Now
             </Button>
             <Button type="default" size="large">
-              Sign In
+              <NavLink className='text-white hover:no-underline' to='/login'>Sign In</NavLink>
             </Button>
           </div>
         </div>
