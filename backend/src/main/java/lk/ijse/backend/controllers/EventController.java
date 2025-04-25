@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -30,7 +31,7 @@ public class EventController {
             @RequestPart("availableTickets") String availableTickets,
             @RequestPart("imageBase64") String imageBase64) {
         try {
-            LocalDateTime localDateTime = LocalDateTime.parse(date);
+            LocalDateTime localDateTime = ZonedDateTime.parse(date).toLocalDateTime();
             Double parsePrice = Double.parseDouble(price);
             int ticketCount = Integer.parseInt(availableTickets);
 
@@ -62,7 +63,7 @@ public class EventController {
             @RequestPart("availableTickets") String availableTickets,
             @RequestPart("imageBase64") String imageBase64) {
         try {
-            LocalDateTime localDateTime = LocalDateTime.parse(date);
+            LocalDateTime localDateTime = ZonedDateTime.parse(date).toLocalDateTime();
             Double parsePrice = Double.parseDouble(price);
             int ticketCount = Integer.parseInt(availableTickets);
 
