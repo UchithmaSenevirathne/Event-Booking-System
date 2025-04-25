@@ -106,8 +106,9 @@ export default function Dashboard() {
         </>
       ) : (
         <>
-          <UserHeader />
-          <UserEvents />
+          <UserHeader onFilterChange={handleFilterChange}/>
+          <UserEvents events={filteredEvents}
+            loading={loading}/>
         </>
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Input, DatePicker, InputNumber, Upload, Form, Typography, Image } from "antd";
 import { toast } from "react-toastify";
 import type { RcFile } from "antd/es/upload/interface";
@@ -6,6 +6,9 @@ import axios from "axios";
 import { CalendarOutlined, FilterOutlined } from "@ant-design/icons";
 import imageCompression from "browser-image-compression";
 import dayjs from "dayjs";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -24,6 +27,8 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHeaderProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState<boolean>(false);
+  const [events, setEvents] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     date: null as dayjs.Dayjs | null,
@@ -40,22 +45,53 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
 
   const [imagePreview, setImagePreview] = useState<string>("");
 
+  // Fetch events when component mounts
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/events/backend/event");
+      // Transform events data to FullCalendar format
+      const formattedEvents = response.data.map((event: any) => ({
+        title: event.title,
+        start: event.date,
+        id: event.id,
+        extendedProps: {
+          location: event.location,
+          price: event.price,
+          availableTickets: event.availableTickets
+        }
+      }));
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast.error("Failed to load events");
+    }
+  };
+
+  const openCalendarModal = () => {
+    console.log("Opening calendar modal");
+    setIsCalendarModalOpen(true);
+  };
+
   const handleImageUpload = async (file: RcFile): Promise<boolean> => {
     const maxFileSize = 10 * 1024 * 1024; // 10 MB
     if (file.size && file.size > maxFileSize) {
       toast.error("File size exceeds the maximum limit of 10 MB.");
       return false;
     }
-  
+
     try {
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
         useWebWorker: true
       };
-      
+
       const compressedFile = await imageCompression(file, options);
-      
+
       const reader = new FileReader();
       reader.onload = () => {
         if (reader.result) {
@@ -64,12 +100,12 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
         }
       };
       reader.readAsDataURL(compressedFile);
-      
+
     } catch (error) {
       toast.error("Error compressing image");
       console.error(error);
     }
-    
+
     return false; // Prevent default upload behavior
   };
 
@@ -92,6 +128,7 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Event created successfully!");
+      fetchEvents(); // Refresh events after creating a new one
       onEventCreated();
       // Reset form data
       setFormData({
@@ -130,6 +167,12 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
     toast.info("Filters cleared");
   };
 
+  // Handle event click in calendar
+  const handleEventClick = (info: any) => {
+    toast.info(`Event: ${info.event.title}`);
+    // You could open a modal with event details here
+  };
+
   return (
     <div className="mx-5 mt-4">
       <div className="flex flex-col justify-between p-4 mb-4 bg-white border shadow-sm md:flex-row md:items-center gap-y-4 rounded-2xl">
@@ -156,13 +199,13 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
 
         <div className="flex flex-col items-center w-full gap-3 sm:flex-row sm:w-auto">
           <Button
-            className="w-full py-5 text-white bg-black sm:w-auto hover:bg-gray-800"
+            className="w-full py-5 text-black bg-white sm:w-auto hover:bg-gray-800"
             onClick={() => setIsModalOpen(true)}
           >
             Create Event
           </Button>
           <Button
-            className="flex items-center justify-center w-full h-10 py-5 text-black bg-white border border-gray-300 sm:w-auto hover:bg-gray-100"
+            className="flex items-center justify-center w-full h-10 py-5 text-white bg-black border border-gray-300 sm:w-auto hover:bg-gray-100"
             onClick={() => setIsFilterModalOpen(true)}
             icon={<FilterOutlined style={{ fontSize: "16px", marginRight: "8px" }} />}
           >
@@ -170,7 +213,7 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
           </Button>
           <Button
             className="flex items-center justify-center w-full h-10 text-black bg-white border border-gray-300 sm:w-12 sm:h-12 hover:bg-gray-100"
-            onClick={() => toast.info("Calendar Coming Soon!")}
+            onClick={openCalendarModal}
             icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
           />
         </div>
@@ -334,6 +377,43 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Calendar Modal */}
+      {isCalendarModalOpen && (
+        <Modal
+          title="Event Calendar"
+          open={isCalendarModalOpen}
+          onCancel={() => setIsCalendarModalOpen(false)}
+          width={800}
+          footer={[
+            <Button key="close" onClick={() => setIsCalendarModalOpen(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <div style={{ height: '500px' }}>
+            <FullCalendar
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              events={events}
+              eventClick={handleEventClick}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,dayGridWeek,dayGridDay'
+              }}
+              eventTimeFormat={{
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
+              }}
+              eventColor="#3788d8"
+              eventBorderColor="#3788d8"
+              eventTextColor="#ffffff"
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
