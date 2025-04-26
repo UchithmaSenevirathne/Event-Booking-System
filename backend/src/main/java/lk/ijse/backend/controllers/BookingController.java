@@ -36,4 +36,14 @@ public class BookingController {
     public List<BookingDTO> getAllBookings() {
         return bookingService.getAllBookings();
     }
+
+    @GetMapping("/user/{email}/details")
+    public List<BookingDTO> getUserBookingDetails(@PathVariable String email) {
+        try {
+            return bookingService.getUserBookingDetails(email);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -38,9 +38,9 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/events/backend/user/", "/events/backend/user/register", "/events/backend/user/authenticate",
+                        .requestMatchers("/events/backend/user/", "/events/backend/user/register", "/events/backend/user/authenticate", "/events/backend/user/send-otp", "/events/backend/user/verify-otp","/events/backend/user/reset-password",
                                 "/events/backend/event", "/events/backend/event/**",
-                                "/events/backend/book", "events/backend/book/all_bookings", "/events/backend/user/id/{email}")
+                                "/events/backend/book", "events/backend/book/all_bookings", "/events/backend/user/id/{email}", "/events/backend/book/user/{email}/details")
                         .permitAll()
                         .anyRequest()
                         .authenticated())

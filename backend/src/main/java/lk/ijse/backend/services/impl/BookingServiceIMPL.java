@@ -1,21 +1,28 @@
 package lk.ijse.backend.services.impl;
 
 import lk.ijse.backend.dtos.BookingDTO;
+import lk.ijse.backend.entities.User;
 import lk.ijse.backend.repositories.BookingRepository;
 import lk.ijse.backend.repositories.EventRepository;
+import lk.ijse.backend.repositories.UserRepository;
 import lk.ijse.backend.services.BookingService;
 import lk.ijse.backend.util.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class BookingServiceIMPL implements BookingService {
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private Mapping mapping;
@@ -28,5 +35,15 @@ public class BookingServiceIMPL implements BookingService {
     @Override
     public List<BookingDTO> getAllBookings() {
         return mapping.convertToBookingDTOList(bookingRepository.findAll());
+    }
+
+    @Override
+    public List<BookingDTO> getUserBookingDetails(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            return mapping.convertToBookingDTOList(bookingRepository.findByUser(user));
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 }

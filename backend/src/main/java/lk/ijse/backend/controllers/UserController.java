@@ -14,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("events/backend/user")
 @CrossOrigin
@@ -124,4 +126,56 @@ public class UserController {
         Long userId = userService.getUserIdByEmail(email);
         return ResponseEntity.ok(userId); // Send back the userId as a response
     }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<ResponseDTO> sendOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        try {
+            boolean isSent = userService.sendOtpToEmail(email);
+            if (isSent) {
+                return ResponseEntity.ok(new ResponseDTO(VarList.OK, "OTP sent successfully", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(VarList.Not_Found, "User not found", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(VarList.Internal_Server_Error, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ResponseDTO> verifyOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        try {
+            boolean isValid = userService.verifyOtp(email, otp);
+            if (isValid) {
+                return ResponseEntity.ok(new ResponseDTO(VarList.OK, "OTP verified successfully", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDTO(VarList.Unauthorized, "Invalid OTP", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(VarList.Internal_Server_Error, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseDTO> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+
+        try {
+            boolean isReset = userService.resetPassword(email, otp, newPassword);
+            if (isReset) {
+                return ResponseEntity.ok(new ResponseDTO(VarList.OK, "Password reset successfully", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ResponseDTO(VarList.Unauthorized, "Invalid OTP or email", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDTO(VarList.Internal_Server_Error, e.getMessage(), null));
+        }
+    }
+
 }

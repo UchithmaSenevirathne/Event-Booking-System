@@ -8,4 +8,6 @@ public interface BookingService {
     void makeBooking(BookingDTO bookingDTO);
 
     List<BookingDTO> getAllBookings();
+
+    List<BookingDTO> getUserBookingDetails(String email);
 }
