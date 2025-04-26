@@ -4,7 +4,7 @@
 
 ### Frontend Setup
 1. Clone the repository:  
-   `git clone <repo-url>`
+   `git clone https://github.com/UchithmaSenevirathne/Event-Booking-System.git`
 
 2. Navigate to the frontend directory:  
    `cd frontend`
@@ -19,7 +19,7 @@
 
 ### Backend Setup
 1. Clone the repository:  
-   `git clone <repo-url>`
+   `git clone https://github.com/UchithmaSenevirathne/Event-Booking-System.git`
 
 2. Navigate to the backend directory:  
    `cd backend`
@@ -47,22 +47,22 @@
 - `/src`: Contains all the frontend React components, pages, and utilities.
   - `/components`: Reusable UI components (e.g., buttons, form fields).
   - `/pages`: React components for different pages (Login, Signup, Event List, Booking).
-  - `/services`: Axios API calls and authentication management.
-  - `/styles`: Tailwind CSS configuration.
+  - `/assets`: Images for website
 
 ### Backend
-- `/src/main/java/com/example/eventbookingsystem`: Contains all backend services.
+- `/src/main/java/lk/ijse/backend`: Contains all backend services.
   - `/controller`: REST API controllers (Auth, Events, Bookings).
   - `/service`: Business logic (Event management, Booking handling).
   - `/repository`: Repository interfaces for database operations.
-  - `/model`: Entity classes (User, Event, Booking).
-  - `/security`: Configuration for Spring Security and JWT-based authentication.
+  - `/Enities`: Entity classes (User, Event, Booking).
+  - `/Dtos`: DTO classes (UserDTO, EventDTO, BookingDTO).
+  - `/config`: Configuration for Spring Security and JWT-based authentication.
 
 ---
 
 ## Auth Flow Explanation
-1. **Login**: Users can log in by sending a POST request to `/auth/login` with their email and password. A JWT token is returned upon successful authentication.
-2. **Signup**: New users can register by sending a POST request to `/auth/register` with their email and password. Email format is validated, and duplicate emails are prevented.
+1. **Login**: Users can log in by sending a POST request to `events/backend/user/authenticate` with their email and password. A JWT token is returned upon successful authentication.
+2. **Signup**: New users can register by sending a POST request to `events/backend/user/register` with their email and password. Email format is validated, and duplicate emails are prevented.
 3. **JWT Token**: After logging in, the JWT token must be included in the Authorization header (`Bearer <token>`) for all protected routes (e.g., `/bookings`).
 4. **Role-based Access**: Users with the "user" role can access `/bookings` and view their history, while "admin" users can manage events (create, edit, delete).
 
@@ -86,17 +86,14 @@
 
 ## Clarify Public vs Protected Routes
 1. **Public Routes**:
-   - `/events`: Viewable by everyone, no authentication required.
-   - `/events/{id}`: Viewable by everyone, no authentication required.
-
+   - `/`: Viewable by everyone, no authentication required.
+   - 
 2. **Protected Routes**:
-   - `/bookings`: Requires authentication (JWT token in Authorization header).
-   - `/bookings/history`: Requires authentication.
-   - `/admin`: Only accessible by users with the "admin" role.
+   - `layout/bookings`: Requires authentication (JWT token in Authorization header).
+   - `layout/events`: Requires authentication.
 
 ---
 
 ## External Tools or Assistance
-- **GitHub Copilot**: Used for code completion and suggestions, primarily for helper functions and API integrations.
 - **ChatGPT**: Used for assisting in API design, algorithmic approaches, and troubleshooting specific coding issues related to React and Spring Boot.
 
