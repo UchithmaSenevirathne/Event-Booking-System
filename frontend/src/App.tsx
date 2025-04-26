@@ -8,6 +8,7 @@ import SignUp from './pages/register';
 import Dashboard from './pages/dashboard/Dashboard';
 import AppLayout from './pages/dashboard/AppLayout';
 import { UserProvider } from './components/UserContext';
+import Booking from './pages/bookings/booking';
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
         <Route path="/layout/*" element={<AppLayout/>}>
           <Route index element={<Dashboard />} />
           <Route path="events" element={<Dashboard />} />
-          {/* <Route path="bookings" element={<Bookings />} /> */}
+          <Route path="bookings" element={<Booking />} />
         </Route>
       </Routes>
       </UserProvider>

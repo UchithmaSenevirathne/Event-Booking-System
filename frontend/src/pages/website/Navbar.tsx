@@ -1,17 +1,25 @@
 // components/Navbar.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { MenuOutlined } from '@ant-design/icons';
 import { Button, Drawer, Menu } from 'antd';
 import type { MenuProps } from 'antd';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-const items: MenuProps['items'] = [
-  { label: <Link to="/">Home</Link>, key: 'home' },
-  { label: <Link to="/about">About</Link>, key: 'about' },
-  { label: <Link to="/events">Events</Link>, key: 'events' },
-  { label: <Link to="/contact">Contact</Link>, key: 'contact' },
+const navigation = [
+  { name: 'Home', href: '#home', current: true },
+  { name: 'About', href: '#about', current: false },
+  { name: 'Events', href: '#events', current: false },
+  { name: 'Contact', href: '#contact', current: false },
 ];
+
+// Convert navigation to Menu items
+const items: MenuProps['items'] = navigation.map((item) => ({
+  label: (
+    <a href={item.href} className="text-white" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+      {item.name}
+    </a>
+  ),
+  key: item.name.toLowerCase(),
+}));
 
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -27,7 +35,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu Icon */}
       <div className="md:hidden">
-        <Button type="text" icon={<MenuOutlined  className='text-white'/>} onClick={() => setOpen(true)} />
+        <Button type="text" icon={<MenuOutlined className="text-white" />} onClick={() => setOpen(true)} />
       </div>
 
       {/* Drawer Menu for Mobile */}

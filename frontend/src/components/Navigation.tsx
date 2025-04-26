@@ -5,9 +5,9 @@ export const USER_NAVBAR_LINKS = [
         path: '/events'
     },
     {
-        key: 'user_bookings',
+        key: 'bookings',
         label: 'Bookings',
-        path: '/user_bookings'
+        path: '/bookings'
     }
 ]
 
@@ -18,8 +18,8 @@ export const ADMIN_NAVBAR_LINKS = [
         path: '/events'
     },
     {
-        key: 'admin_bookings',
+        key: 'bookings',
         label: 'Bookings',
-        path: '/admin_bookings',
+        path: '/bookings',
     }
 ]
