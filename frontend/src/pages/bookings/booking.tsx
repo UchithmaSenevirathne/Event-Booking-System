@@ -25,7 +25,7 @@ export default function Booking() {
       if (user.role === 'ADMIN') {
         response = await axios.get<Booking[]>('http://localhost:8080/events/backend/book/all_bookings');
       } else {
-        const email = localStorage.getItem('email');
+        const email = localStorage.getItem('userEmail');
         if (!email) {
           toast.error('User email not found in local storage');
           return;

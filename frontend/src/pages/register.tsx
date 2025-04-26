@@ -6,10 +6,12 @@ import { EyeInvisibleOutlined, EyeTwoTone, MailOutlined, LockOutlined } from "@a
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 const SignUp: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -50,6 +52,7 @@ const SignUp: React.FC = () => {
       if (response.status === 201) {
         toast.success("Registration successful!");
         setFormData({ email: "", password: "", confirmPassword: "" });
+        navigate("/login");
       }
     } catch (error: any) {
       if (error.response?.status === 406) {

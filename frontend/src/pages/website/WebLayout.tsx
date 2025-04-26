@@ -12,9 +12,9 @@ export default function WebLayout() {
     <div className="flex flex-col h-screen px-0 mx-0 max-w-screen">
       <Navbar />
       <Home />
-      <About />
+      {/* <About /> */}
       <Events />
-      <Contact />
+      {/* <Contact /> */}
       <Footer />
     </div>
   );

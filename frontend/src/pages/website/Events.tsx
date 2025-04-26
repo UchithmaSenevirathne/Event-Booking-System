@@ -21,6 +21,7 @@ export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { setUser } = useUserContext();
+  const { user } = useUserContext();
 
   const API = "http://localhost:8080/events/backend/event/all_events";
 
@@ -111,6 +112,7 @@ export default function Events() {
                   </p>
                 </div>
               </div>
+              
               <div className="flex justify-end gap-2 mt-3">
                 <Button
                   type="default"
