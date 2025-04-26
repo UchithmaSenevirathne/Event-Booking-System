@@ -20,7 +20,9 @@ export default function NavigationBar({ role }: NavigationBarProps) {
     role === "ADMIN" ? ADMIN_NAVBAR_LINKS : USER_NAVBAR_LINKS;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
     toast.success("Logged out!");
     navigate("/login");
   };
