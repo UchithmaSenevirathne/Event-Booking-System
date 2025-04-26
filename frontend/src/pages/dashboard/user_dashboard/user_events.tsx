@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Spin,
-  Modal,
-  InputNumber,
-  Empty,
-} from "antd";
-import {
-  CalendarOutlined,
-  BookOutlined,
-} from "@ant-design/icons";
+import { Button, Spin, Modal, InputNumber, Empty } from "antd";
+import { CalendarOutlined, BookOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -37,13 +28,14 @@ export default function UserEvents({
   loading,
   selectedEvent,
   openBookingModal,
-  fetchEvents
+  fetchEvents,
 }: UserEventsProps) {
-
   const API = "http://localhost:8080/events/backend";
   const USER_API = "http://localhost:8080/events/backend/user";
 
-  const [localSelectedEvent, setLocalSelectedEvent] = useState<Event | null>(null);
+  const [localSelectedEvent, setLocalSelectedEvent] = useState<Event | null>(
+    null
+  );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ticketCount, setTicketCount] = useState<number>(1);
 
@@ -135,7 +127,8 @@ export default function UserEvents({
                   className="object-cover w-full h-full"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = "https://via.placeholder.com/400x200?text=Image+Error";
+                    target.src =
+                      "https://via.placeholder.com/400x200?text=Image+Error";
                   }}
                 />
               </div>
@@ -151,9 +144,17 @@ export default function UserEvents({
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
-                  <p className="mt-1 text-sm text-green-600">
+                  <p
+                    className={`mt-1 text-sm ${
+                      event.availableTickets <= 5
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
                     <BookOutlined className="mr-1" />
-                    {event.availableTickets} Tickets
+                    {event.availableTickets === 0
+                      ? "Sold Out"
+                      : `${event.availableTickets} Tickets`}
                   </p>
                   <p className="font-medium text-gray-800">
                     ${Number(event.price).toFixed(2)}
@@ -166,6 +167,7 @@ export default function UserEvents({
                   type="default"
                   className="text-white bg-black"
                   onClick={() => handleBookNow(event)}
+                  disabled={event.availableTickets === 0}
                 >
                   Book Now
                 </Button>
@@ -185,20 +187,42 @@ export default function UserEvents({
       >
         {localSelectedEvent && (
           <div>
-            <p><strong>Event:</strong> {localSelectedEvent.title}</p>
-            <p><strong>Date:</strong> {new Date(localSelectedEvent.date).toLocaleString()}</p>
-            <p><strong>Location:</strong> {localSelectedEvent.location}</p>
-            <p><strong>Price per ticket:</strong> ${localSelectedEvent.price.toFixed(2)}</p>
-            <p><strong>Available:</strong> {localSelectedEvent.availableTickets} tickets</p>
+            <p>
+              <strong>Event:</strong> {localSelectedEvent.title}
+            </p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {new Date(localSelectedEvent.date).toLocaleString()}
+            </p>
+            <p>
+              <strong>Location:</strong> {localSelectedEvent.location}
+            </p>
+            <p>
+              <strong>Price per ticket:</strong> $
+              {localSelectedEvent.price.toFixed(2)}
+            </p>
+            <p>
+              <strong>Available:</strong> {localSelectedEvent.availableTickets}{" "}
+              tickets
+            </p>
 
             <div className="mt-4">
-              <label className="block mb-2 font-medium">Select ticket count (1–5)</label>
+              <label className="block mb-2 font-medium">
+                Select ticket count (1–5)
+              </label>
               <InputNumber
                 min={1}
                 max={5}
                 value={ticketCount}
                 onChange={(value) => setTicketCount(value || 1)}
               />
+            </div>
+            {/* Total Price Section */}
+            <div className="mt-4">
+              <p className="text-lg font-semibold">
+                Total Price: $
+                {(ticketCount * localSelectedEvent.price).toFixed(2)}
+              </p>
             </div>
           </div>
         )}

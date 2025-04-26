@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Spin, Empty, Button } from "antd";
 import axios from "axios";
-import { CalendarOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../components/UserContext";
+import { CalendarOutlined, BookOutlined } from "@ant-design/icons";
 
 // Event type
 interface Event {
@@ -64,7 +64,7 @@ export default function Events() {
   };
 
   return (
-    <div className="relative w-full h-screen mx-5 mt-8" id="events">
+    <div className="relative h-screen mx-5 mt-8" id="events">
       <h1 className="mb-6 text-2xl font-bold text-center">Upcoming Events</h1>
 
       {loading ? (
@@ -104,11 +104,20 @@ export default function Events() {
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
-                  <p className="font-semibold text-green-600">
-                    ${Number(event.price).toFixed(2)}
+                  <p
+                    className={`mt-1 text-sm ${
+                      event.availableTickets <= 5
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    <BookOutlined className="mr-1" />
+                    {event.availableTickets === 0
+                      ? "Sold Out"
+                      : `${event.availableTickets} Tickets`}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    {event.availableTickets} Tickets
+                  <p className="font-medium text-gray-800">
+                    ${Number(event.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -118,6 +127,7 @@ export default function Events() {
                   type="default"
                   className="text-white bg-black"
                   onClick={() => handleBookNow(event)}
+                  disabled={event.availableTickets === 0}
                 >
                   Book Now
                 </Button>

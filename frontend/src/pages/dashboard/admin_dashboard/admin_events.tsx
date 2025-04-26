@@ -111,19 +111,19 @@ export default function AdminEvents({
 
   const updateEvent = async () => {
     if (!editingEvent) return;
-  
+
     try {
       const formData = new FormData();
       formData.append("title", editingEvent.title);
-  
+
       // Format the date correctly for ZonedDateTime parsing
       let dateValue;
       if (typeof editingEvent.date === "string") {
         // If it's already an ISO string, use it
         dateValue = editingEvent.date;
-  
+
         // Ensure it has a time zone if it doesn't already
-        if (!dateValue.includes('Z') && !dateValue.includes('+')) {
+        if (!dateValue.includes("Z") && !dateValue.includes("+")) {
           dateValue = new Date(dateValue).toISOString();
         }
       } else {
@@ -131,29 +131,33 @@ export default function AdminEvents({
         dateValue = dayjs(editingEvent.date).toISOString();
       }
       formData.append("date", dateValue);
-  
+
       formData.append("location", editingEvent.location);
       formData.append("price", editingEvent.price.toString());
       formData.append(
         "availableTickets",
         editingEvent.availableTickets.toString()
       );
-  
+
       // Handle the image data correctly
       let imageData = editingEvent.imageBase64;
       if (imageData.includes("base64,")) {
         imageData = imageData.split("base64,")[1];
       }
       formData.append("imageBase64", imageData);
-  
+
       // Log the data being sent for debugging
       console.log("Updating event ID:", editingEvent.eventId);
       console.log("Date value being sent:", dateValue);
-      
-      const response = await axios.put(`${API}/update/${editingEvent.eventId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-  
+
+      const response = await axios.put(
+        `${API}/update/${editingEvent.eventId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
       console.log("Update response:", response);
       toast.success("Event updated successfully");
       setIsModalOpen(false);
@@ -226,13 +230,20 @@ export default function AdminEvents({
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
-                  <p className="mt-1 text-sm text-[green]">
-                    <BookOutlined className="mr-1" /> {event.availableTickets}{" "}
-                    Tickets
+                  <p
+                    className={`mt-1 text-sm ${
+                      event.availableTickets <= 5
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    <BookOutlined className="mr-1" />
+                    {event.availableTickets === 0
+                      ? "Sold Out"
+                      : `${event.availableTickets} Tickets`}
                   </p>
                   <p className="font-medium text-gray-800">
-                    $
-                    {Number(event.price).toFixed(2)}
+                    ${Number(event.price).toFixed(2)}
                   </p>
                 </div>
               </div>
