@@ -9,6 +9,8 @@ import UserHeader from "./user_dashboard/user_header";
 import UserEvents from "./user_dashboard/user_events";
 import { useUserContext } from "../../components/UserContext";
 import dayjs from "dayjs";
+import { useLocation } from "react-router-dom";
+
 
 // Define interfaces for better type checking
 interface Event {
@@ -27,12 +29,23 @@ interface FilterOptions {
 }
 
 export default function Dashboard() {
+  const location = useLocation();
   const { user } = useUserContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeFilters, setActiveFilters] = useState<FilterOptions | null>(null);
+  const [openBookingModal, setOpenBookingModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
   const API = "http://localhost:8080/events/backend/event";
+
+  useEffect(() => {
+    if (location.state && location.state.openBooking && location.state.selectedEvent) {
+      setSelectedEvent(location.state.selectedEvent);
+      setOpenBookingModal(true);
+    }
+  }, [location]);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -108,7 +121,10 @@ export default function Dashboard() {
         <>
           <UserHeader onFilterChange={handleFilterChange}/>
           <UserEvents events={filteredEvents}
-            loading={loading}/>
+            loading={loading}
+            selectedEvent={selectedEvent}
+            openBookingModal={openBookingModal}
+            />
         </>
       )}
     </div>

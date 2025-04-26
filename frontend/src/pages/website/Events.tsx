@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Spin, Empty } from "antd";
+import { Spin, Empty, Button } from "antd";
 import axios from "axios";
 import { CalendarOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../../components/UserContext";
 
 // Event type
 interface Event {
@@ -15,8 +17,10 @@ interface Event {
 }
 
 export default function Events() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { setUser } = useUserContext();
 
   const API = "http://localhost:8080/events/backend/event/all_events";
 
@@ -39,6 +43,23 @@ export default function Events() {
     if (imageData.startsWith("data:")) return imageData;
     if (imageData.includes("base64,")) return imageData;
     return `data:image/jpeg;base64,${imageData}`;
+  };
+
+  const handleBookNow = (event: Event) => {
+    const email = localStorage.getItem("userEmail");
+    const role = localStorage.getItem("userRole");
+
+    if (email) {
+      // const storedUser = { email, role };
+      setUser({ role: role ?? 'USER' });
+
+      localStorage.setItem("selectedEvent", JSON.stringify(event));
+      navigate("/layout", {
+        state: { openBooking: true, selectedEvent: event },
+      });
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
@@ -89,6 +110,15 @@ export default function Events() {
                     {event.availableTickets} Tickets
                   </p>
                 </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-3">
+                <Button
+                  type="default"
+                  className="text-white bg-black"
+                  onClick={() => handleBookNow(event)}
+                >
+                  Book Now
+                </Button>
               </div>
             </div>
           ))}
