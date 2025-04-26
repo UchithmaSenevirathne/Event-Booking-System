@@ -1,6 +1,7 @@
 package lk.ijse.backend.services.impl;
 
 import lk.ijse.backend.dtos.BookingDTO;
+import lk.ijse.backend.entities.Event;
 import lk.ijse.backend.entities.User;
 import lk.ijse.backend.repositories.BookingRepository;
 import lk.ijse.backend.repositories.EventRepository;
@@ -25,11 +26,30 @@ public class BookingServiceIMPL implements BookingService {
     private UserRepository userRepository;
 
     @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
     private Mapping mapping;
 
     @Override
     public void makeBooking(BookingDTO bookingDTO) {
         bookingRepository.save(mapping.convertToBookingEntity(bookingDTO));
+
+        // Now update available tickets
+        Optional<Event> eventOptional = eventRepository.findById(bookingDTO.getEventId());
+        if (eventOptional.isPresent()) {
+            Event event = eventOptional.get();
+            int updatedTickets = event.getAvailableTickets() - bookingDTO.getTicketQuantity();
+
+            if (updatedTickets < 0) {
+                throw new RuntimeException("Not enough tickets available.");
+            }
+
+            event.setAvailableTickets(updatedTickets);
+            eventRepository.save(event);
+        } else {
+            throw new RuntimeException("Event not found for booking.");
+        }
     }
 
     @Override
