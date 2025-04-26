@@ -86,7 +86,7 @@ export default function Home() {
             The Ultimate <span className="text-[#1677ff]">Event Booking</span> Experience
           </h1>
           <div className="flex justify-center gap-4 md:justify-start">
-            <Button type="primary" size="large">
+            <Button type="primary" size="large" href="#events">
               Book Now
             </Button>
             <Button type="default" size="large">

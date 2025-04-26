@@ -124,6 +124,7 @@ export default function Dashboard() {
             loading={loading}
             selectedEvent={selectedEvent}
             openBookingModal={openBookingModal}
+            fetchEvents={fetchEvents}
             />
         </>
       )}

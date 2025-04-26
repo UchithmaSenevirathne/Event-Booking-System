@@ -29,6 +29,7 @@ interface UserEventsProps {
   loading: boolean;
   selectedEvent?: Event | null;
   openBookingModal?: boolean;
+  fetchEvents: () => void;
 }
 
 export default function UserEvents({
@@ -36,6 +37,7 @@ export default function UserEvents({
   loading,
   selectedEvent,
   openBookingModal,
+  fetchEvents
 }: UserEventsProps) {
 
   const API = "http://localhost:8080/events/backend";
@@ -96,6 +98,7 @@ export default function UserEvents({
       await axios.post(`${API}/book`, bookingDTO);
       toast.success("Booking successful!");
       setIsModalVisible(false);
+      fetchEvents();
     } catch (error) {
       console.error("Booking failed", error);
       toast.error("Booking failed. Try again later.");

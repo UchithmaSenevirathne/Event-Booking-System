@@ -64,7 +64,7 @@ export default function Events() {
   };
 
   return (
-    <div className="mx-5 mt-8" id="events">
+    <div className="relative w-full h-screen mx-5 mt-8" id="events">
       <h1 className="mb-6 text-2xl font-bold text-center">Upcoming Events</h1>
 
       {loading ? (
