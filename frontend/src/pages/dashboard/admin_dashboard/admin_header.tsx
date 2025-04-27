@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Input, DatePicker, InputNumber, Upload, Form, Typography, Image } from "antd";
+import {
+  Button,
+  Modal,
+  Input,
+  DatePicker,
+  Card,
+  InputNumber,
+  Upload,
+  Form,
+  Typography,
+  Image,
+} from "antd";
 import { toast } from "react-toastify";
 import type { RcFile } from "antd/es/upload/interface";
 import axios from "axios";
@@ -9,6 +20,7 @@ import dayjs from "dayjs";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { EventInput } from "@fullcalendar/core";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -19,16 +31,35 @@ interface FilterOptions {
   priceRange?: [number, number] | null;
 }
 
+interface EventData {
+  title?: string;
+  start: string;
+  id: string;
+  display?: string;
+  backgroundColor?: string;
+  classNames?: string[];
+  extendedProps?: {
+    location: string;
+    price: number;
+    availableTickets: number;
+    imageUrl?: string;
+  };
+}
+
 interface AdminHeaderProps {
   onEventCreated: () => void;
   onFilterChange: (filters: FilterOptions | null) => void;
 }
 
-export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHeaderProps) {
+export default function AdminHeader({
+  onEventCreated,
+  onFilterChange,
+}: AdminHeaderProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState<boolean>(false);
-  const [events, setEvents] = useState<any[]>([]);
+  const [isCalendarModalOpen, setIsCalendarModalOpen] =
+    useState<boolean>(false);
+  const [events, setEvents] = useState<EventData[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     date: null as dayjs.Dayjs | null,
@@ -44,6 +75,35 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
   });
 
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Add custom CSS for calendar
+  useEffect(() => {
+    // Create a style element
+    const styleEl = document.createElement("style");
+    // Define the CSS content
+    styleEl.innerHTML = `
+      .has-event {
+        background-color: rgba(55, 136, 216, 0.1);
+        font-weight: bold;
+      }
+      .fc-event {
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 2px;
+      }
+      .event-highlight {
+        cursor: pointer;
+      }
+    `;
+    // Append the style element to the document head
+    document.head.appendChild(styleEl);
+
+    // Cleanup function to remove the style element when component unmounts
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
 
   // Fetch events when component mounts
   useEffect(() => {
@@ -51,28 +111,48 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
   }, []);
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get("http://localhost:8080/events/backend/event");
-      // Transform events data to FullCalendar format
-      const formattedEvents = response.data.map((event: any) => ({
-        title: event.title,
-        start: event.date,
-        id: event.id,
-        extendedProps: {
-          location: event.location,
-          price: event.price,
-          availableTickets: event.availableTickets
-        }
-      }));
+      const response = await axios.get(
+        "http://localhost:8080/events/backend/event"
+      );
+      const formattedEvents: EventData[] = [];
+
+      response.data.forEach((event: any) => {
+        // Regular event with details
+        formattedEvents.push({
+          title: event.title,
+          start: event.date,
+          id: String(event.id),
+          extendedProps: {
+            location: event.location,
+            price: event.price,
+            availableTickets: event.availableTickets,
+            imageUrl: event.imageUrl || "",
+          },
+        });
+
+        // Background highlight for the same event
+        formattedEvents.push({
+          start: event.date,
+          id: `bg-${event.id}`,
+          display: "background",
+          backgroundColor: "rgba(55, 136, 216, 0.3)",
+          classNames: ["event-highlight"],
+        });
+      });
+
       setEvents(formattedEvents);
+      toast.success("Events loaded successfully");
     } catch (error) {
       console.error("Error fetching events:", error);
       toast.error("Failed to load events");
+    } finally {
+      setLoading(false);
     }
   };
 
   const openCalendarModal = () => {
-    console.log("Opening calendar modal");
     setIsCalendarModalOpen(true);
   };
 
@@ -87,7 +167,7 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
-        useWebWorker: true
+        useWebWorker: true,
       };
 
       const compressedFile = await imageCompression(file, options);
@@ -100,7 +180,6 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
         }
       };
       reader.readAsDataURL(compressedFile);
-
     } catch (error) {
       toast.error("Error compressing image");
       console.error(error);
@@ -110,7 +189,14 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
   };
 
   const handleSubmit = async () => {
-    if (!formData.title || !formData.date || !formData.location || !formData.price || !formData.availableTickets || !formData.imageBase64) {
+    if (
+      !formData.title ||
+      !formData.date ||
+      !formData.location ||
+      !formData.price ||
+      !formData.availableTickets ||
+      !formData.imageBase64
+    ) {
       toast.error("Please fill in all fields correctly.");
       return;
     }
@@ -150,7 +236,7 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
     // Apply the filters
     onFilterChange({
       dateRange: filterData.dateRange,
-      priceRange: filterData.priceRange
+      priceRange: filterData.priceRange,
     });
     setIsFilterModalOpen(false);
     toast.info("Filters applied");
@@ -160,7 +246,7 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
     // Clear all filters
     setFilterData({
       dateRange: null,
-      priceRange: [0, 1000]
+      priceRange: [0, 1000],
     });
     onFilterChange(null);
     setIsFilterModalOpen(false);
@@ -169,8 +255,34 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
 
   // Handle event click in calendar
   const handleEventClick = (info: any) => {
-    toast.info(`Event: ${info.event.title}`);
-    // You could open a modal with event details here
+    // Only show info for regular events, not background events
+    if (!info.event.id.startsWith("bg-")) {
+      const eventData = info.event.extendedProps;
+      toast.info(`
+        Event: ${info.event.title}
+        Location: ${eventData.location}
+        Price: $${eventData.price}
+        Available Tickets: ${eventData.availableTickets}
+      `);
+    }
+  };
+
+  // Handle date click in calendar
+  const handleDateClick = (info: any) => {
+    const clickedDate = info.dateStr;
+    const eventsOnDay = events.filter((event) => {
+      if (event.display === "background") return false;
+      const eventDate = new Date(event.start).toISOString().split("T")[0];
+      return eventDate === clickedDate;
+    });
+
+    if (eventsOnDay.length > 0) {
+      toast.info(
+        `${eventsOnDay.length} event(s) on ${new Date(
+          clickedDate
+        ).toLocaleDateString()}`
+      );
+    }
   };
 
   return (
@@ -194,7 +306,9 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
         <div className="flex flex-col items-start flex-1 gap-2 sm:flex-row sm:items-center">
           <h1 className="text-[23px] font-semibold">Board</h1>
           <span className="text-[19px] font-medium text-gray-700">-</span>
-          <h4 className="text-[19px] font-medium text-gray-700">Popular Events</h4>
+          <h4 className="text-[19px] font-medium text-gray-700">
+            Popular Events
+          </h4>
         </div>
 
         <div className="flex flex-col items-center w-full gap-3 sm:flex-row sm:w-auto">
@@ -207,7 +321,11 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
           <Button
             className="flex items-center justify-center w-full h-10 py-5 text-white bg-black border border-gray-300 sm:w-auto hover:bg-gray-100"
             onClick={() => setIsFilterModalOpen(true)}
-            icon={<FilterOutlined style={{ fontSize: "16px", marginRight: "8px" }} />}
+            icon={
+              <FilterOutlined
+                style={{ fontSize: "16px", marginRight: "8px" }}
+              />
+            }
           >
             Filter
           </Button>
@@ -227,12 +345,9 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
         onOk={handleSubmit}
         okText="Create"
         width={600}
-        bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }} 
+        bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }}
       >
-        <Form
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+        <Form layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Event Title"
             name="title"
@@ -242,7 +357,9 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
               placeholder="Enter event title"
               className="mb-2"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
             />
           </Form.Item>
 
@@ -262,46 +379,69 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
           <Form.Item
             label="Location"
             name="location"
-            rules={[{ required: true, message: "Please enter event location!" }]}
+            rules={[
+              { required: true, message: "Please enter event location!" },
+            ]}
           >
             <Input
               placeholder="Enter event location"
               className="mb-2"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
             />
           </Form.Item>
 
           <Form.Item
             label="Price"
             name="price"
-            rules={[{ required: true, message: "Please enter event price!" }, { type: "number", min: 0, message: "Price must be a positive number!" }]}
+            rules={[
+              { required: true, message: "Please enter event price!" },
+              {
+                type: "number",
+                min: 0,
+                message: "Price must be a positive number!",
+              },
+            ]}
           >
             <InputNumber
               className="w-full mb-2"
               placeholder="Enter event price"
               value={formData.price}
-              onChange={(value) => setFormData({ ...formData, price: value || 0 })}
+              onChange={(value) =>
+                setFormData({ ...formData, price: value || 0 })
+              }
             />
           </Form.Item>
 
           <Form.Item
             label="Available Tickets"
             name="availableTickets"
-            rules={[{ required: true, message: "Please enter number of available tickets!" }, { type: "number", min: 1, message: "Must be at least 1 ticket!" }]}
+            rules={[
+              {
+                required: true,
+                message: "Please enter number of available tickets!",
+              },
+              { type: "number", min: 1, message: "Must be at least 1 ticket!" },
+            ]}
           >
             <InputNumber
               className="w-full mb-2"
               placeholder="Enter number of available tickets"
               value={formData.availableTickets}
-              onChange={(value) => setFormData({ ...formData, availableTickets: value || 0 })}
+              onChange={(value) =>
+                setFormData({ ...formData, availableTickets: value || 0 })
+              }
             />
           </Form.Item>
 
           <Form.Item
             label="Event Image"
             name="imageBase64"
-            rules={[{ required: true, message: "Please upload an event image!" }]}
+            rules={[
+              { required: true, message: "Please upload an event image!" },
+            ]}
           >
             <Upload
               beforeUpload={handleImageUpload}
@@ -345,7 +485,12 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
           <Form.Item label="Filter by Date Range">
             <RangePicker
               className="w-full"
-              onChange={(dates) => setFilterData({ ...filterData, dateRange: dates as [dayjs.Dayjs, dayjs.Dayjs] })}
+              onChange={(dates) =>
+                setFilterData({
+                  ...filterData,
+                  dateRange: dates as [dayjs.Dayjs, dayjs.Dayjs],
+                })
+              }
               value={filterData.dateRange as [dayjs.Dayjs, dayjs.Dayjs] | null}
             />
           </Form.Item>
@@ -357,10 +502,15 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
                 placeholder="Min Price"
                 min={0}
                 value={filterData.priceRange ? filterData.priceRange[0] : 0}
-                onChange={(value) => setFilterData({ 
-                  ...filterData, 
-                  priceRange: [value || 0, filterData.priceRange ? filterData.priceRange[1] : 1000]
-                })}
+                onChange={(value) =>
+                  setFilterData({
+                    ...filterData,
+                    priceRange: [
+                      value || 0,
+                      filterData.priceRange ? filterData.priceRange[1] : 1000,
+                    ],
+                  })
+                }
               />
               <span>to</span>
               <InputNumber
@@ -368,10 +518,15 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
                 placeholder="Max Price"
                 min={filterData.priceRange ? filterData.priceRange[0] : 0}
                 value={filterData.priceRange ? filterData.priceRange[1] : 1000}
-                onChange={(value) => setFilterData({ 
-                  ...filterData, 
-                  priceRange: [filterData.priceRange ? filterData.priceRange[0] : 0, value || 1000]
-                })}
+                onChange={(value) =>
+                  setFilterData({
+                    ...filterData,
+                    priceRange: [
+                      filterData.priceRange ? filterData.priceRange[0] : 0,
+                      value || 1000,
+                    ],
+                  })
+                }
               />
             </div>
           </Form.Item>
@@ -391,25 +546,49 @@ export default function AdminHeader({ onEventCreated, onFilterChange }: AdminHea
             </Button>,
           ]}
         >
-          <div style={{ height: '500px' }}>
+          <div style={{ height: "500px" }}>
             <FullCalendar
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              events={events}
+              events={events as EventInput[]}
               eventClick={handleEventClick}
+              dateClick={handleDateClick}
               headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,dayGridWeek,dayGridDay",
               }}
               eventTimeFormat={{
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
+                hour: "numeric",
+                minute: "2-digit",
+                meridiem: "short",
               }}
-              eventColor="#3788d8"
-              eventBorderColor="#3788d8"
-              eventTextColor="#ffffff"
+              eventContent={(eventInfo) => {
+                // Only render content for non-background events
+                if (eventInfo.event.display !== "background") {
+                  return (
+                    <div className="p-1">
+                      <strong>{eventInfo.event.title}</strong>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+              dayCellDidMount={(info) => {
+                // Add custom styling to days with events
+                const eventDate = info.date.toISOString().split("T")[0];
+                const hasEvent = events.some((event) => {
+                  if (event.display === "background") return false; // Skip background events to avoid double counting
+                  const eventStartDate = new Date(event.start)
+                    .toISOString()
+                    .split("T")[0];
+                  return eventStartDate === eventDate;
+                });
+
+                if (hasEvent) {
+                  info.el.classList.add("has-event");
+                }
+              }}
             />
           </div>
         </Modal>

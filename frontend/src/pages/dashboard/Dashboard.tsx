@@ -11,8 +11,6 @@ import { useUserContext } from "../../components/UserContext";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 
-
-// Define interfaces for better type checking
 interface Event {
   eventId: number;
   title: string;
@@ -34,14 +32,20 @@ export default function Dashboard() {
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeFilters, setActiveFilters] = useState<FilterOptions | null>(null);
+  const [activeFilters, setActiveFilters] = useState<FilterOptions | null>(
+    null
+  );
   const [openBookingModal, setOpenBookingModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const API = "http://localhost:8080/events/backend/event";
 
   useEffect(() => {
-    if (location.state && location.state.openBooking && location.state.selectedEvent) {
+    if (
+      location.state &&
+      location.state.openBooking &&
+      location.state.selectedEvent
+    ) {
       setSelectedEvent(location.state.selectedEvent);
       setOpenBookingModal(true);
     }
@@ -78,12 +82,17 @@ export default function Dashboard() {
       let passesPriceFilter = true;
 
       // Apply date filter if set
-      if (activeFilters.dateRange && activeFilters.dateRange[0] && activeFilters.dateRange[1]) {
+      if (
+        activeFilters.dateRange &&
+        activeFilters.dateRange[0] &&
+        activeFilters.dateRange[1]
+      ) {
         const eventDate = dayjs(event.date);
         const startDate = activeFilters.dateRange[0];
         const endDate = activeFilters.dateRange[1];
-        
-        passesDateFilter = eventDate.isAfter(startDate) && eventDate.isBefore(endDate);
+
+        passesDateFilter =
+          eventDate.isAfter(startDate) && eventDate.isBefore(endDate);
       }
 
       // Apply price filter if set
@@ -106,8 +115,8 @@ export default function Dashboard() {
     <div>
       {user.role === "ADMIN" ? (
         <>
-          <AdminHeader 
-            onEventCreated={fetchEvents} 
+          <AdminHeader
+            onEventCreated={fetchEvents}
             onFilterChange={handleFilterChange}
           />
           <AdminEvents
@@ -119,13 +128,14 @@ export default function Dashboard() {
         </>
       ) : (
         <>
-          <UserHeader onFilterChange={handleFilterChange}/>
-          <UserEvents events={filteredEvents}
+          <UserHeader onFilterChange={handleFilterChange} />
+          <UserEvents
+            events={filteredEvents}
             loading={loading}
             selectedEvent={selectedEvent}
             openBookingModal={openBookingModal}
             fetchEvents={fetchEvents}
-            />
+          />
         </>
       )}
     </div>

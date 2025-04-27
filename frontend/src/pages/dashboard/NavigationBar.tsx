@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ADMIN_NAVBAR_LINKS, USER_NAVBAR_LINKS } from "../../components/Navigation";
+import {
+  ADMIN_NAVBAR_LINKS,
+  USER_NAVBAR_LINKS,
+} from "../../components/Navigation";
 import { Button, Drawer } from "antd"; // Import Drawer
 import { toast } from "react-toastify";
-import { MenuOutlined, CloseOutlined } from "@ant-design/icons"; // Icons for Hamburger Menu
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 
 type NavigationBarProps = {
@@ -40,7 +43,7 @@ export default function NavigationBar({ role }: NavigationBarProps) {
       <h1 className="text-lg font-extrabold text-white">Events</h1>
 
       <div className="items-center hidden gap-4 font-semibold lg:flex">
-      {linksToRender.map((item) => (
+        {linksToRender.map((item) => (
           <NavbarLink key={item.key} item={item} currentPath={pathname} />
         ))}
       </div>
@@ -70,17 +73,13 @@ export default function NavigationBar({ role }: NavigationBarProps) {
         visible={isDrawerVisible}
         key="drawer"
         width={250}
-        bodyStyle={{ backgroundColor: "#1E1E1E"}} 
+        bodyStyle={{ backgroundColor: "#1E1E1E" }}
       >
         <div className="flex flex-col items-star">
           {linksToRender.map((item) => (
             <NavbarLink key={item.key} item={item} currentPath={pathname} />
           ))}
-          <Button
-            type="primary"
-            onClick={handleLogout}
-            className="w-full mt-4"
-          >
+          <Button type="primary" onClick={handleLogout} className="w-full mt-4">
             Logout
           </Button>
         </div>

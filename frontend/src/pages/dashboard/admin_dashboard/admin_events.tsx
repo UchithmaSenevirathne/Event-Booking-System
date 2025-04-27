@@ -65,7 +65,7 @@ export default function AdminEvents({
 
   const openEditModal = (event: Event) => {
     setEditingEvent(event);
-    // Make sure to use the correct prefix if it's not already in the data
+
     setImagePreview(
       event.imageBase64.startsWith("data:")
         ? event.imageBase64
@@ -116,13 +116,10 @@ export default function AdminEvents({
       const formData = new FormData();
       formData.append("title", editingEvent.title);
 
-      // Format the date correctly for ZonedDateTime parsing
       let dateValue;
       if (typeof editingEvent.date === "string") {
-        // If it's already an ISO string, use it
         dateValue = editingEvent.date;
 
-        // Ensure it has a time zone if it doesn't already
         if (!dateValue.includes("Z") && !dateValue.includes("+")) {
           dateValue = new Date(dateValue).toISOString();
         }
@@ -139,7 +136,6 @@ export default function AdminEvents({
         editingEvent.availableTickets.toString()
       );
 
-      // Handle the image data correctly
       let imageData = editingEvent.imageBase64;
       if (imageData.includes("base64,")) {
         imageData = imageData.split("base64,")[1];
@@ -164,7 +160,7 @@ export default function AdminEvents({
       onUpdate();
     } catch (error: any) {
       console.error("Error updating event:", error);
-      // More detailed error logging
+      // detailed error logging
       if (error.response) {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
@@ -173,7 +169,7 @@ export default function AdminEvents({
     }
   };
 
-  // Helper function to render image with proper base64 format
+  // render image with proper base64 format
   const renderImage = (imageData: string) => {
     // Check if the image data already has the data URI prefix
     if (imageData.startsWith("data:")) {
