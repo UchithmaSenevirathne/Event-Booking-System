@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 @Table(name = "\"events\"")
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long eventId;
+    private String eventId;
     private String title;
     private LocalDateTime date;
     private String location;

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -31,7 +32,7 @@ public class EventController {
             @RequestPart("availableTickets") String availableTickets,
             @RequestPart("imageBase64") String imageBase64) {
         try {
-            LocalDateTime localDateTime = ZonedDateTime.parse(date).toLocalDateTime();
+            LocalDateTime localDateTime = LocalDateTime.parse(date.replace("'T'", "T"));
             Double parsePrice = Double.parseDouble(price);
             int ticketCount = Integer.parseInt(availableTickets);
 
@@ -55,7 +56,7 @@ public class EventController {
 
     @PutMapping(value = "/update/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateEvent(
-            @PathVariable("eventId") Long eventId,
+            @PathVariable("eventId") String eventId,
             @RequestPart("title") String title,
             @RequestPart("date") String date,
             @RequestPart("location") String location,
@@ -63,7 +64,13 @@ public class EventController {
             @RequestPart("availableTickets") String availableTickets,
             @RequestPart("imageBase64") String imageBase64) {
         try {
-            LocalDateTime localDateTime = ZonedDateTime.parse(date).toLocalDateTime();
+            LocalDateTime localDateTime;
+            try {
+                localDateTime = LocalDateTime.parse(date);
+            } catch (Exception e) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                localDateTime = LocalDateTime.parse(date, formatter);
+            }
             Double parsePrice = Double.parseDouble(price);
             int ticketCount = Integer.parseInt(availableTickets);
 
@@ -92,12 +99,12 @@ public class EventController {
     }
 
     @GetMapping(value = "/get/{eventId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public EventResponse getEventById(@PathVariable("eventId") Long eventId) {
+    public EventResponse getEventById(@PathVariable("eventId") String eventId) {
         return eventService.getSelectedEvent(eventId);
     }
 
     @DeleteMapping(value = "/delete/{eventId}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable("eventId") Long eventId) {
+    public ResponseEntity<Void> deleteEvent(@PathVariable("eventId") String eventId) {
         try {
             eventService.deleteEvent(eventId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

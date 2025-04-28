@@ -5,6 +5,7 @@ import lk.ijse.backend.entities.User;
 import lk.ijse.backend.repositories.UserRepository;
 import lk.ijse.backend.services.EmailService;
 import lk.ijse.backend.services.UserService;
+import lk.ijse.backend.util.IdGenerator;
 import lk.ijse.backend.util.Mapping;
 import lk.ijse.backend.util.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ import java.util.*;
 public class UserServiceIMPL implements UserService, UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private IdGenerator idGenerator;
 
     @Autowired
     private Mapping mapping;
@@ -58,6 +62,7 @@ public class UserServiceIMPL implements UserService, UserDetailsService {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             userDTO.setRole("USER");
+            userDTO.setUserId(idGenerator.generateUserId());
             userRepository.save(mapping.convertToUserEntity(userDTO));
             return VarList.Created;
         }
@@ -70,7 +75,7 @@ public class UserServiceIMPL implements UserService, UserDetailsService {
     }
 
     @Override
-    public Long getUserIdByEmail(String email) {
+    public String getUserIdByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
             return user.getUserId();

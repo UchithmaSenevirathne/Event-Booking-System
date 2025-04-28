@@ -7,5 +7,5 @@ public interface UserService {
 
     UserDTO loadUserDetailsByUsername(String email);
 
-    Long getUserIdByEmail(String email);
+    String getUserIdByEmail(String email);
 }

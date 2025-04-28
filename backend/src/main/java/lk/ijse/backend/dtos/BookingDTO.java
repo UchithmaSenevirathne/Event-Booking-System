@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 public class BookingDTO {
-    private Long bookingId;
-    private Long userId;
-    private Long eventId;
+    private String bookingId;
+    private String userId;
+    private String eventId;
     private int ticketQuantity;
     private LocalDateTime createdAt;
 }

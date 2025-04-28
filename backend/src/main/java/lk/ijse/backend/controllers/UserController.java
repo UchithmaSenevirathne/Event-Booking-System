@@ -122,8 +122,8 @@ public class UserController {
     }
 
     @GetMapping("/id/{email}")
-    public ResponseEntity<Long> getUserIdByEmail(@PathVariable("email") String email) {
-        Long userId = userService.getUserIdByEmail(email);
+    public ResponseEntity<String> getUserIdByEmail(@PathVariable("email") String email) {
+        String userId = userService.getUserIdByEmail(email);
         return ResponseEntity.ok(userId); // Send back the userId as a response
     }
 

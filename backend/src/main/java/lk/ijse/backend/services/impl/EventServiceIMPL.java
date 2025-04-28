@@ -6,6 +6,7 @@ import lk.ijse.backend.entities.Event;
 import lk.ijse.backend.exceptions.NotFoundException;
 import lk.ijse.backend.repositories.EventRepository;
 import lk.ijse.backend.services.EventService;
+import lk.ijse.backend.util.IdGenerator;
 import lk.ijse.backend.util.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,14 @@ public class EventServiceIMPL implements EventService {
     private EventRepository eventRepository;
 
     @Autowired
+    private IdGenerator idGenerator;
+
+    @Autowired
     private Mapping mapping;
 
     @Override
     public void addEvent(EventDTO eventDTO) {
+        eventDTO.setEventId(idGenerator.generateEventId());
         eventRepository.save(mapping.convertToEventEntity(eventDTO));
     }
 
@@ -49,7 +54,7 @@ public class EventServiceIMPL implements EventService {
     }
 
     @Override
-    public EventResponse getSelectedEvent(Long eventId) {
+    public EventResponse getSelectedEvent(String eventId) {
         if (eventRepository.existsById(eventId)) {
             return mapping.convertToEventDTO(eventRepository.getReferenceById(eventId));
         }else{
@@ -58,7 +63,7 @@ public class EventServiceIMPL implements EventService {
     }
 
     @Override
-    public void deleteEvent(Long eventId) {
+    public void deleteEvent(String eventId) {
         Optional<Event> findId = eventRepository.findById(eventId);
         if(!findId.isPresent()){
             throw new NotFoundException("Event not found");

@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "\"user\"")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private String userId;
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)

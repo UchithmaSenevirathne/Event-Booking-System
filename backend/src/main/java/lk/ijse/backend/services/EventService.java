@@ -12,7 +12,7 @@ public interface EventService {
 
     List<EventDTO> getAllEvents();
 
-    EventResponse getSelectedEvent(Long eventId);
+    EventResponse getSelectedEvent(String eventId);
 
-    void deleteEvent(Long eventId);
+    void deleteEvent(String eventId);
 }
