@@ -4,9 +4,8 @@ import { CalendarOutlined, BookOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-// Define Event type
 interface Event {
-  eventId: number;
+  eventId: string;
   title: string;
   date: string;
   location: string;
@@ -80,11 +79,26 @@ export default function UserEvents({
 
       const userId = await fetchUserId(email);
 
+      const now = new Date();
+
+      const formattedDate =
+        now.getFullYear() +
+        "-" +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(now.getDate()).padStart(2, "0") +
+        "T" +
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(now.getSeconds()).padStart(2, "0");
+
       const bookingDTO = {
         eventId: localSelectedEvent.eventId,
         ticketQuantity: ticketCount,
         userId: userId,
-        createdAt: new Date().toISOString(),
+        createdAt: formattedDate,
       };
 
       await axios.post(`${API}/book`, bookingDTO);

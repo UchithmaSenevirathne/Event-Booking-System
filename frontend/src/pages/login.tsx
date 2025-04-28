@@ -147,7 +147,6 @@ const Login: React.FC = () => {
       if (response.status === 200) {
         toast.success("Password reset successful! Please login with your new password.");
         setResetPasswordModalVisible(false);
-        // Clear all fields
         setEmailForOtp("");
         setOtp("");
         setNewPassword("");

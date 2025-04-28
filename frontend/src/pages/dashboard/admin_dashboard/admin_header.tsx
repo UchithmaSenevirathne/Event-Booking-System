@@ -22,10 +22,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventInput } from "@fullcalendar/core";
 
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-// Define type for filter options
 interface FilterOptions {
   dateRange?: [dayjs.Dayjs, dayjs.Dayjs] | null;
   priceRange?: [number, number] | null;
@@ -77,11 +75,8 @@ export default function AdminHeader({
   const [imagePreview, setImagePreview] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Add custom CSS for calendar
   useEffect(() => {
-    // Create a style element
     const styleEl = document.createElement("style");
-    // Define the CSS content
     styleEl.innerHTML = `
       .has-event {
         background-color: rgba(55, 136, 216, 0.1);
@@ -96,16 +91,13 @@ export default function AdminHeader({
         cursor: pointer;
       }
     `;
-    // Append the style element to the document head
     document.head.appendChild(styleEl);
 
-    // Cleanup function to remove the style element when component unmounts
     return () => {
       document.head.removeChild(styleEl);
     };
   }, []);
 
-  // Fetch events when component mounts
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -119,11 +111,10 @@ export default function AdminHeader({
       const formattedEvents: EventData[] = [];
 
       response.data.forEach((event: any) => {
-        // Regular event with details
         formattedEvents.push({
           title: event.title,
           start: event.date,
-          id: String(event.id),
+          id: event.id,
           extendedProps: {
             location: event.location,
             price: event.price,
@@ -132,7 +123,6 @@ export default function AdminHeader({
           },
         });
 
-        // Background highlight for the same event
         formattedEvents.push({
           start: event.date,
           id: `bg-${event.id}`,
@@ -185,7 +175,7 @@ export default function AdminHeader({
       console.error(error);
     }
 
-    return false; // Prevent default upload behavior
+    return false;
   };
 
   const handleSubmit = async () => {
@@ -202,8 +192,10 @@ export default function AdminHeader({
     }
 
     const form = new FormData();
+    const formattedDate = formData.date?.format("YYYY-MM-DD'T'HH:mm:ss") || "";
+
     form.append("title", formData.title);
-    form.append("date", formData.date?.toISOString() || "");
+    form.append("date", formattedDate);
     form.append("location", formData.location);
     form.append("price", formData.price.toString());
     form.append("availableTickets", formData.availableTickets.toString());
@@ -214,9 +206,9 @@ export default function AdminHeader({
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Event created successfully!");
-      fetchEvents(); // Refresh events after creating a new one
+      fetchEvents();
       onEventCreated();
-      // Reset form data
+
       setFormData({
         title: "",
         date: null,
@@ -233,7 +225,6 @@ export default function AdminHeader({
   };
 
   const handleFilterApply = () => {
-    // Apply the filters
     onFilterChange({
       dateRange: filterData.dateRange,
       priceRange: filterData.priceRange,
@@ -243,7 +234,6 @@ export default function AdminHeader({
   };
 
   const handleFilterClear = () => {
-    // Clear all filters
     setFilterData({
       dateRange: null,
       priceRange: [0, 1000],
@@ -255,7 +245,6 @@ export default function AdminHeader({
 
   // Handle event click in calendar
   const handleEventClick = (info: any) => {
-    // Only show info for regular events, not background events
     if (!info.event.id.startsWith("bg-")) {
       const eventData = info.event.extendedProps;
       toast.info(`
@@ -267,7 +256,6 @@ export default function AdminHeader({
     }
   };
 
-  // Handle date click in calendar
   const handleDateClick = (info: any) => {
     const clickedDate = info.dateStr;
     const eventsOnDay = events.filter((event) => {

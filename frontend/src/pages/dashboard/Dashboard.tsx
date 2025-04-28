@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 
 interface Event {
-  eventId: number;
+  eventId: string;
   title: string;
   date: string;
   location: string;
@@ -81,7 +81,6 @@ export default function Dashboard() {
       let passesDateFilter = true;
       let passesPriceFilter = true;
 
-      // Apply date filter if set
       if (
         activeFilters.dateRange &&
         activeFilters.dateRange[0] &&
@@ -95,7 +94,6 @@ export default function Dashboard() {
           eventDate.isAfter(startDate) && eventDate.isBefore(endDate);
       }
 
-      // Apply price filter if set
       if (activeFilters.priceRange) {
         const [minPrice, maxPrice] = activeFilters.priceRange;
         passesPriceFilter = event.price >= minPrice && event.price <= maxPrice;

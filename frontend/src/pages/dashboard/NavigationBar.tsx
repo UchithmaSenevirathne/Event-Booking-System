@@ -4,7 +4,7 @@ import {
   ADMIN_NAVBAR_LINKS,
   USER_NAVBAR_LINKS,
 } from "../../components/Navigation";
-import { Button, Drawer } from "antd"; // Import Drawer
+import { Button, Drawer } from "antd";
 import { toast } from "react-toastify";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import classNames from "classnames";
@@ -14,8 +14,8 @@ type NavigationBarProps = {
 };
 
 export default function NavigationBar({ role }: NavigationBarProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for Drawer
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -31,11 +31,11 @@ export default function NavigationBar({ role }: NavigationBarProps) {
   };
 
   const showDrawer = () => {
-    setIsDrawerVisible(true); // Show Drawer
+    setIsDrawerVisible(true);
   };
 
   const closeDrawer = () => {
-    setIsDrawerVisible(false); // Close Drawer
+    setIsDrawerVisible(false);
   };
 
   return (

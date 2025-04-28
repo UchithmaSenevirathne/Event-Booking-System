@@ -6,9 +6,9 @@ import { useUserContext } from "../../components/UserContext";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Booking {
-  bookingId: number;
-  userId: number;
-  eventId: number;
+  bookingId: string;
+  userId: string;
+  eventId: string;
   ticketQuantity: number;
   createdAt: string;
 }
@@ -49,6 +49,33 @@ export default function Booking() {
     getBookings();
   }, []);
 
+  const formatDateTime = (dateTimeStr: string) => {
+    try {
+      if (!dateTimeStr) return "N/A";
+
+      const date = dateTimeStr.includes("T")
+        ? new Date(dateTimeStr)
+        : new Date(dateTimeStr.replace(" ", "T"));
+
+      if (isNaN(date.getTime())) {
+        return dateTimeStr;
+      }
+
+      // Format date with local options
+      return date.toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return dateTimeStr;
+    }
+  };
+
   const columns = [
     {
       title: "Booking ID",
@@ -74,7 +101,7 @@ export default function Booking() {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (text: string) => new Date(text).toLocaleString(),
+      render: (text: string) => formatDateTime(text),
     },
   ];
 

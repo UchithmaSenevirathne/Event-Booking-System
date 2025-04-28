@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../components/UserContext";
 import { CalendarOutlined, BookOutlined } from "@ant-design/icons";
 
-// Event type
 interface Event {
   eventId: number;
   title: string;
@@ -51,8 +50,7 @@ export default function Events() {
     const role = localStorage.getItem("userRole");
 
     if (email) {
-      // const storedUser = { email, role };
-      setUser({ role: role ?? 'USER' });
+      setUser({ role: role ?? "USER" });
 
       localStorage.setItem("selectedEvent", JSON.stringify(event));
       navigate("/layout", {
@@ -121,7 +119,7 @@ export default function Events() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-2 mt-3">
                 <Button
                   type="default"

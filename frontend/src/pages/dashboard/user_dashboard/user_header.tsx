@@ -9,10 +9,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventInput } from "@fullcalendar/core";
 
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-// Define type for filter options
 interface FilterOptions {
   dateRange?: [dayjs.Dayjs, dayjs.Dayjs] | null;
   priceRange?: [number, number] | null;
@@ -49,11 +47,8 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
     priceRange: [0, 1000],
   });
 
-  // Add custom CSS for calendar
   useEffect(() => {
-    // Create a style element
     const styleEl = document.createElement("style");
-    // Define the CSS content
     styleEl.innerHTML = `
       .has-event {
         background-color: rgba(55, 136, 216, 0.1);
@@ -68,16 +63,13 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
         cursor: pointer;
       }
     `;
-    // Append the style element to the document head
     document.head.appendChild(styleEl);
 
-    // Cleanup function to remove the style element when component unmounts
     return () => {
       document.head.removeChild(styleEl);
     };
   }, []);
 
-  // Fetch events when component mounts
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -91,7 +83,6 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
       const formattedEvents: EventData[] = [];
 
       response.data.forEach((event: any) => {
-        // Regular event with details
         formattedEvents.push({
           title: event.title,
           start: event.date,
@@ -104,7 +95,6 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
           },
         });
 
-        // Background highlight for the same event
         formattedEvents.push({
           start: event.date,
           id: `bg-${event.id}`,
@@ -129,7 +119,6 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
   };
 
   const handleFilterApply = () => {
-    // Apply the filters
     onFilterChange({
       dateRange: filterData.dateRange,
       priceRange: filterData.priceRange,
@@ -139,7 +128,6 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
   };
 
   const handleFilterClear = () => {
-    // Clear all filters
     setFilterData({
       dateRange: null,
       priceRange: [0, 1000],
@@ -149,9 +137,7 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
     toast.info("Filters cleared");
   };
 
-  // Handle event click in calendar
   const handleEventClick = (info: any) => {
-    // Only show info for regular events, not background events
     if (!info.event.id.startsWith("bg-")) {
       const eventData = info.event.extendedProps;
       toast.info(`
@@ -163,7 +149,6 @@ export default function UserHeader({ onFilterChange }: UserHeaderProps) {
     }
   };
 
-  // Handle date click in calendar
   const handleDateClick = (info: any) => {
     const clickedDate = info.dateStr;
     const eventsOnDay = events.filter((event) => {

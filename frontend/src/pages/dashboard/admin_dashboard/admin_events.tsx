@@ -22,9 +22,8 @@ import axios from "axios";
 import dayjs from "dayjs";
 import imageCompression from "browser-image-compression";
 
-// Define Event type
 interface Event {
-  eventId: number;
+  eventId: string;
   title: string;
   date: string;
   location: string;
@@ -52,7 +51,7 @@ export default function AdminEvents({
 
   const API = "http://localhost:8080/events/backend/event";
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${API}/delete/${id}`);
       toast.success("Event deleted successfully");
@@ -96,7 +95,7 @@ export default function AdminEvents({
       reader.onload = (e) => {
         if (e.target?.result) {
           const base64String = e.target.result.toString();
-          // Store just the base64 data without the prefix
+
           const base64Data = base64String.split(",")[1];
           handleEditChange("imageBase64", base64Data);
           setImagePreview(base64String);
@@ -116,17 +115,7 @@ export default function AdminEvents({
       const formData = new FormData();
       formData.append("title", editingEvent.title);
 
-      let dateValue;
-      if (typeof editingEvent.date === "string") {
-        dateValue = editingEvent.date;
-
-        if (!dateValue.includes("Z") && !dateValue.includes("+")) {
-          dateValue = new Date(dateValue).toISOString();
-        }
-      } else {
-        // Convert dayjs to ISO string
-        dateValue = dayjs(editingEvent.date).toISOString();
-      }
+      const dateValue = dayjs(editingEvent.date).format("YYYY-MM-DDTHH:mm:ss");
       formData.append("date", dateValue);
 
       formData.append("location", editingEvent.location);
@@ -142,7 +131,6 @@ export default function AdminEvents({
       }
       formData.append("imageBase64", imageData);
 
-      // Log the data being sent for debugging
       console.log("Updating event ID:", editingEvent.eventId);
       console.log("Date value being sent:", dateValue);
 
@@ -160,7 +148,7 @@ export default function AdminEvents({
       onUpdate();
     } catch (error: any) {
       console.error("Error updating event:", error);
-      // detailed error logging
+
       if (error.response) {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
@@ -171,17 +159,14 @@ export default function AdminEvents({
 
   // render image with proper base64 format
   const renderImage = (imageData: string) => {
-    // Check if the image data already has the data URI prefix
     if (imageData.startsWith("data:")) {
       return imageData;
     }
 
-    // Check if the data contains the base64 prefix already
     if (imageData.includes("base64,")) {
       return imageData;
     }
 
-    // Add the generic image data URI prefix
     return `data:image/jpeg;base64,${imageData}`;
   };
 
